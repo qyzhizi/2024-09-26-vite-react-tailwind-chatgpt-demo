@@ -24,10 +24,7 @@ export async function onRequestPost(context) {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            return response.json(); // 解析 JSON 响应
-        })
-        .then(data => {
-            // 处理成功的响应数据
+            return Response.json(response.json()); // 解析 JSON 响应
         })
         .catch(error => {
             // 处理错误
