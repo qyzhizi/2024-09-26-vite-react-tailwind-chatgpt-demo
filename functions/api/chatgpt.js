@@ -17,14 +17,17 @@ export async function onRequestPost(context) {
 
         const requestData = {
             model: 'gpt-3.5-turbo',
+            // model: 'gpt-4o-2024-05-13',
             messages: [{ role: 'user', content: text }],
+            // messages: [{ role: 'user', content: 'hello' }],
+            temperature: 0.73
         };
 
         const requestOptions = {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${openai_key}`,
-                'Content-Type': 'application/json',
+                'Authorization': `${openai_key}`,
+                "Content-Type": "application/json",
             },
             body: JSON.stringify(requestData),
         };
@@ -36,7 +39,9 @@ export async function onRequestPost(context) {
             return new Response(JSON.stringify({ error: "Failed to fetch from OpenAI" }), { status: chatres.status });
         }
 
+        // console.log(chatres)
         const responseData = await chatres.json();
+        // chatres.log(responseData)
         return new Response(JSON.stringify(responseData), { status: 200, headers: { 'Content-Type': 'application/json' } });
     } catch (error) {
         // Catch any errors and return a 500 response
