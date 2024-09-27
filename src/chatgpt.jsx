@@ -16,7 +16,7 @@ function Chatgpt() {
             // Log the result to the console for debugging
             console.log('Response from API:', result);
 
-            setResponse(result.data.choices[0].message.content);
+            setResponse("hhhhhh");
             setInput(''); // Clear the input after submission
         } catch (error) {
             console.error('Error fetching response:', error);
