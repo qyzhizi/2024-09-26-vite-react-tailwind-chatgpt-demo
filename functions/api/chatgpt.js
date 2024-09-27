@@ -28,5 +28,6 @@ export async function onRequestPost(context) {
         })
         .catch(error => {
             // 处理错误
+            return new Response(error.message, { status: 500 });
         });
 }
