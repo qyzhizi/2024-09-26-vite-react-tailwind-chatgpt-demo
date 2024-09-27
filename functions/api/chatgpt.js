@@ -1,33 +1,35 @@
 export async function onRequestPost(context) {
     const { request, env } = context;
-    
-    const text = request.text;
-    const openai_key = env.OpenAIKey
-    // const input = "你的输入内容"; // 替换为实际输入内容
 
-    const requestData = {
-        model: 'gpt-3.5-turbo',
-        messages: [{ role: 'user', content: text }],
-    };
-    
-    const requestOptions = {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${openai_key}`, // 使用模板字面量插入变量
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestData),
-    };
-    
-    fetch('https://burn.hair/v1/chat/completions', requestOptions)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return Response.json(response.json()); // 解析 JSON 响应
-        })
-        .catch(error => {
-            // 处理错误
-            return new Response(error.message, { status: 500 });
-        });
+    try {
+        const text = await request.text(); // Correctly read request body
+        const openai_key = env.OpenAIKey;
+
+        const requestData = {
+            model: 'gpt-3.5-turbo',
+            messages: [{ role: 'user', content: text }],
+        };
+
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${openai_key}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestData),
+        };
+
+        const chatres = await fetch('https://burn.hair/v1/chat/completions', requestOptions);
+        
+        if (!chatres.ok) {
+            // Handle non-200 responses
+            return new Response(JSON.stringify({ error: "Failed to fetch from OpenAI" }), { status: chatres.status });
+        }
+
+        const responseData = await chatres.json();
+        return new Response(JSON.stringify(responseData), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    } catch (error) {
+        // Catch any errors and return a 500 response
+        return new Response(JSON.stringify({ error: "Internal Server Error", details: error.message }), { status: 500 });
+    }
 }
