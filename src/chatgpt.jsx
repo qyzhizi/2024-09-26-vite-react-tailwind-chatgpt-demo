@@ -13,6 +13,8 @@ function Chatgpt() {
             const result = await axios.post('/api/chatgpt', {text: input },
                 {headers: {'Content-Type': 'application/json', },}
             );
+            // Log the result to the console for debugging
+            console.log('Response from API:', result);
 
             setResponse(result.data.choices[0].message.content);
             setInput(''); // Clear the input after submission
