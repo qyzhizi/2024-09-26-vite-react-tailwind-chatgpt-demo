@@ -5,10 +5,11 @@ export async function onRequestPost(context) {
         // const text = await request.text(); // Correctly read request body
         // Check if the content type is JSON
         const contentType = request.headers.get("content-type");
+        let text;
         if (contentType && contentType.includes("application/json")) {
             // Parse the JSON body
             const body = await request.json();
-            const text = body.text; // Access the 'text' field
+            text = body.text; // Access the 'text' field
         }else {
             return new Response('Unsupported Content-Type', { status: 400 });
         }
