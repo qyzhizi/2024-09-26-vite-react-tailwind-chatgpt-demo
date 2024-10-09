@@ -44,8 +44,9 @@ function Chatgpt() {
     };
     
     useEffect(() => {
-        const messagesContainer = document.querySelector('.messages');
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        const chatGptRootContainer = document.querySelector('.chatgptroot');
+        chatGptRootContainer.scrollTop = chatGptRootContainer.scrollHeight;
+        window.scrollTo(0, document.body.scrollHeight);
       }, [messages]);
 
     useEffect(() => {
@@ -66,12 +67,12 @@ function Chatgpt() {
         }, [input]); // 依赖 input，当 input 发生变化时触发
 
     return (
-        <div className="text-center">
+        <div className="chatgptroot text-center h-screen overflow-auto">
             <h2 className="text-2xl mb-10">ChatGPT</h2>
             <div className="messages mt-4 p-4 border rounded bg-gray-100">
                 {renderMessages()}
             </div>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} className="sticky bottom-0 bg-white p-2">
                 <textarea
                     id="auto-resize-textarea"
                     className="border rounded p-2 w-full resize-none"
