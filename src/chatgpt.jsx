@@ -1,47 +1,92 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useChatStore } from "./store";
+
 
 function Chatgpt() {
     const [input, setInput] = useState('');
-    const [response, setResponse] = useState('');
+    const [errorResponse, setErrorResponse] = useState('');
+    const {messages, addMessage } = useChatStore();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!input) return;
 
         try {
-            const result = await axios.post('/api/azurechatgpt', {text: input },
-                {headers: {'Content-Type': 'application/json', },}
-            );
-            // Log the result to the console for debugging
-            // console.log('Response from API:', result);
-            // console.log('Response from API:', result.data.choices[0].message.content);
+            // add input message(user message)
+            addMessage({ role: 'user', content: input }) // 异步原因，messages 未生效
+            let result;
+            setTimeout(async () => {
+                const { messages } = useChatStore.getState(); 
+                result = await axios.post('/api/azurechatgpt', 
+                    { messages: messages }, 
+                    { headers: { 'Content-Type': 'application/json' } }
+                );
+                addMessage({ role: 'assistant', content: result.data.choices[0].message.content });
+                setInput(''); // Clear the input after submission
+            }, 0); // Ensures it runs after the state update
 
-            setResponse(result.data.choices[0].message.content);
-            setInput(''); // Clear the input after submission
+            // add assistant messages
         } catch (error) {
             console.error('Error fetching response:', error);
-            setResponse('Error fetching response. Please try again.');
+            setErrorResponse(error.message || 'Error fetching response. Please try again.');
         }
     };
+    // 渲染消息列表
+    const renderMessages = () => {
+        return messages.map((message, index) => (
+            <div key={index} className={`border rounded p-2 ${message.role === 'user' ? 'bg-blue-100' : 'bg-green-100'}`}>
+                <pre className="text-left whitespace-pre-wrap"> 
+                    {message.content}
+                </pre>
+            </div>
+        ));
+    };
+    
+    useEffect(() => {
+        const messagesContainer = document.querySelector('.messages');
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }, [messages]);
+
+    useEffect(() => {
+        const maxHeight = 300; // 你可以根据需要调整最大高度
+        const textarea = document.getElementById('auto-resize-textarea');
+        const adjustHeight = () => {
+            textarea.style.height = 'auto'; // 先将高度设置为 auto，以便重新计算高度
+            textarea.style.height = Math.min(textarea.scrollHeight, maxHeight) + 'px'; // 根据内容设置高度，但不超过最大高度
+        };
+        // 添加事件监听器
+        textarea.addEventListener('input', adjustHeight);
+        // 初始化时调整高度（例如预填充内容）
+        adjustHeight();
+        // 清理事件监听器
+        return () => {
+            textarea.removeEventListener('input', adjustHeight);
+        };
+        }, [input]); // 依赖 input，当 input 发生变化时触发
 
     return (
         <div className="text-center">
             <h2 className="text-2xl mb-10">ChatGPT</h2>
+            <div className="messages mt-4 p-4 border rounded bg-gray-100">
+                {renderMessages()}
+            </div>
             <form onSubmit={handleSubmit}>
-                <input
-                    type="text"
-                    className="border rounded p-2"
+                <textarea
+                    id="auto-resize-textarea"
+                    className="border rounded p-2 w-full resize-none"
                     placeholder="Your question here..."
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
+                    rows="3" // 设置初始行数
                 />
                 <button type="submit" className="ml-2 p-2 bg-blue-500 text-white rounded">Ask</button>
             </form>
-            {response && (
+
+            {errorResponse && (
                 <div className="mt-4 p-4 border rounded bg-gray-100">
                     <h3 className="font-bold">Response:</h3>
-                    <p>{response}</p>
+                    <p>{errorResponse}</p>
                 </div>
             )}
         </div>

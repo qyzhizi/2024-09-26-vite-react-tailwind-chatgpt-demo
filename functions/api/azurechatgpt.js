@@ -5,19 +5,16 @@ export async function onRequestPost(context) {
         // const text = await request.text(); // Correctly read request body
         // Check if the content type is JSON
         const contentType = request.headers.get("content-type");
-        let text;
-        if (contentType && contentType.includes("application/json")) {
+        let messages = null;
+        if (contentType?.includes("application/json")) {
             // Parse the JSON body
             const body = await request.json();
-            text = body.text; // Access the 'text' field
-        }else {
+            messages = body.messages;
+        } else {
             return new Response('Unsupported Content-Type', { status: 400 });
         }
-
-        const requestData = {
-            messages: [{ role: 'user', content: text }],
-            // messages: [{ role: 'user', content: 'hello' }],
-        };
+        
+        const requestData = { messages: messages };
 
         const azure_openai_key = env.AZURE_OPENAI_API_KEY;
         const azure_openai_endpoint = env.AZURE_OPENAI_ENDPOINT
@@ -26,7 +23,6 @@ export async function onRequestPost(context) {
             headers: {
                 'api-key': `${azure_openai_key}`,
                 "Content-Type": "application/json",
-                "User-Agent":"PostmanRuntime/7.40.0"
             },
             body: JSON.stringify(requestData),
             // body: requestData,
