@@ -69,10 +69,10 @@ function Chatgpt() {
     return (
         <div className="chatgptroot text-center h-screen overflow-auto">
             <h2 className="text-2xl mb-10">ChatGPT</h2>
-            <div className="messages mt-4 p-4 border rounded bg-gray-100">
+            <div className="messages mt-2 p-2 border rounded bg-gray-100">
                 {renderMessages()}
             </div>
-            <form onSubmit={handleSubmit} className="sticky bottom-0 bg-white p-2">
+            <form onSubmit={handleSubmit} className="sticky bottom-0 bg-white">
                 <textarea
                     id="auto-resize-textarea"
                     className="border rounded p-2 w-full resize-none"
@@ -85,7 +85,7 @@ function Chatgpt() {
             </form>
 
             {errorResponse && (
-                <div className="mt-4 p-4 border rounded bg-gray-100">
+                <div className="mt-4 p-2 border rounded bg-gray-100">
                     <h3 className="font-bold">Response:</h3>
                     <p>{errorResponse}</p>
                 </div>
