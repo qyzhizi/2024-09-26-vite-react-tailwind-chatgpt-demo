@@ -17,7 +17,8 @@ export async function onRequestPost(context) {
         const requestData = { messages: messages };
 
         const azure_openai_key = env.AZURE_OPENAI_API_KEY;
-        const azure_openai_endpoint = env.AZURE_OPENAI_ENDPOINT
+        const azure_openai_url = env.AZURE_OPENAI_URL;
+
         const requestOptions = {
             method: 'POST',
             headers: {
@@ -27,8 +28,7 @@ export async function onRequestPost(context) {
             body: JSON.stringify(requestData),
             // body: requestData,
         };
-        const url = azure_openai_endpoint + '/openai/deployments/gpt-35-turbo/chat/completions?api-version=2024-02-01'
-        const chatres = await fetch(url, requestOptions);
+        const chatres = await fetch(azure_openai_url, requestOptions);
         
         if (!chatres.ok) {
             // Handle non-200 responses
